@@ -1,0 +1,42 @@
+.grid {
+  display: grid;
+  height: 150px;
+  width: 100%;
+  max-width: 50vw;
+  background: lightgray;
+  padding: 2rem 0;
+  .example-column {
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    margin: 0 1rem;
+    display: flex;
+    .mat-form-field {
+      width: 60px;
+      min-width: 60px;
+      margin: 0 0.5rem;
+    }
+    mat-slider {
+      width: 80%;
+      font-size: 2rem;
+    }
+  }
+}
+
+.mat-dialog-content {
+  overflow: hidden;
+  padding: 0;
+}
+
+.mat-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  > button {
+    &:last-child {
+      margin-left: 1rem;
+    }
+  }
+}
