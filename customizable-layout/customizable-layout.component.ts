@@ -1,82 +1,97 @@
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, EventEmitter, Injector, Input, OnInit, Output, Type } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output, Type } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { cloneDeep } from 'lodash-es';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
+import { filter, first, map, startWith } from 'rxjs/operators';
 import { StateItem } from 'src/app/libraries/lf-web-utils/state-item/state-item.class';
-import { CardElement } from 'src/app/shared/components/card-layout/model/card-element.interface';
-import { createGuid } from '../../functions/create-guid.fn';
-import { DeviceType } from '../../model/device-type.enum';
-import { WindowService } from '../../services/window/window.service';
-import { CardLayoutConfig } from './customizable-layout/model/card-layout-config.interface';
-import { CardLayout } from './customizable-layout/model/card-layout.interface';
-import { CardList } from './customizable-layout/model/card-list.interface';
-import { ResizeDialogComponent } from './customizable-layout-menu/resize-dialog/resize-dialog.component';
+import { createGuid } from 'src/app/shared/functions/create-guid.fn';
+import { ResizeDialogComponent } from '../customizable-layout-menu/resize-dialog/resize-dialog.component';
+import { CustomizableLayoutConfig } from './model/customizable-layout-config.interface';
+import { CustomizableLayout } from './model/customizable-layout.interface';
+import { LayoutElement } from './model/layout-element.interface';
+import { LayoutList } from './model/layout-list.interface';
+import { LayoutType } from './model/layout-type.enum';
+import { WINDOW_REF } from './model/window-ref.token';
 
 @Component({
-  selector: 'app-card-layout',
-  templateUrl: './card-layout.component.html',
-  styleUrls: ['./card-layout.component.scss'],
+  selector: 'ng-customizable-layout',
+  templateUrl: './customizable-layout.component.html',
+  styleUrls: ['./customizable-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CustomizableLayoutComponent implements OnInit {
-  @Output() editingChanged = new EventEmitter<boolean>();
+export class CustomizableLayoutComponent implements OnInit, OnDestroy {
+  @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
+  @Output() reorderingChanged = new EventEmitter<boolean>();
   @Input() componentMap: { [key: string]: Type<any> };
-  @Input() defaultLayout: CardLayoutConfig;
+  @Input() defaultLayout: CustomizableLayoutConfig;
   @Input() componentInjector: Injector;
+  @Input() desktopBreakpoint: number = 1024;
+  @Input() tabletBreakpoint = 990;
+  @Input() mobileBreakpoint = 420;
   @Input() showEdit: boolean = true;
-  @Input() editing: boolean;
+  @Input() reordering: boolean;
+  private subs = new Subscription();
 
-  private _currentLayout: StateItem<CardLayoutConfig>;
+  private _layoutState: StateItem<CustomizableLayoutConfig>;
+  private _layoutType: LayoutType = LayoutType.Mobile; // Mobile first <3
   layoutUpdated = new BehaviorSubject<void>(null);
-  layout$: Observable<CardLayout>;
   templateColumns$: Observable<string>;
+  layout$: Observable<CustomizableLayout>;
 
-  constructor(private windowService: WindowService, private matDialog: MatDialog) {
-    this.layout$ = combineLatest([windowService.deviceType.value$, this.layoutUpdated]).pipe(
+  constructor(@Inject(WINDOW_REF) private windowRef: Window, private matDialog: MatDialog, ) {}
+
+  ngOnInit(): void {
+    this.subs.add(this.layoutType$.subscribe((type) => {
+      this._layoutType = type;
+    }));
+    this.layout$ = combineLatest([this.layoutType$, this.layoutUpdated]).pipe(
+      filter(u => u !== null && u !== undefined),
       map(() => {
-        return this.getConnectedLists(this.currentLayout);
+        const layout = this.getConnectedLists(this.currentLayout);
+        this.layoutChanged.next(layout);
+        return layout;
       })
     );
-    this.templateColumns$ = combineLatest([windowService.deviceType.value$, this.layoutUpdated]).pipe(
+    this.templateColumns$ = combineLatest([this.layoutType$, this.layoutUpdated]).pipe(
       map(() => {
         return this.currentColumns;
       })
     );
-  }
-
-  ngOnInit(): void {
     this.initializeState();
   }
 
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
   initializeState() {
-    this._currentLayout = new StateItem<CardLayoutConfig>(
+    this._layoutState = new StateItem<CustomizableLayoutConfig>(
       this.defaultLayout,
       this.defaultLayout.name,
       this.defaultLayout.persist ? localStorage : null
     );
   }
 
-  drop(event: CdkDragDrop<CardElement[]>) {
+  drop(event: CdkDragDrop<LayoutElement[]>) {
     let layout = this.currentLayout;
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       const index = layout.lists.map(l => l.containerName).indexOf(event.container.id);
-      layout.lists[index].cards = event.container.data;
+      layout.lists[index].items = event.container.data;
     } else {
       transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
       const prevListIndex = layout.lists.map(l => l.containerName).indexOf(event.previousContainer.id);
       const currListIndex = layout.lists.map(l => l.containerName).indexOf(event.container.id);
-      layout.lists[prevListIndex].cards = event.previousContainer.data;
-      layout.lists[currListIndex].cards = event.container.data;
+      layout.lists[prevListIndex].items = event.previousContainer.data;
+      layout.lists[currListIndex].items = event.container.data;
     }
     this.currentLayout = { ...layout };
   }
 
   toggleEditing() {
-    this.editing = !this.editing;
-    this.editingChanged.emit(this.editing);
+    this.reordering = !this.reordering;
+    this.reorderingChanged.emit(this.reordering);
   }
 
   resizePressed() {
@@ -109,9 +124,9 @@ export class CustomizableLayoutComponent implements OnInit {
   }
 
   removeColumnLeftPressed() {
-    let spillOver = this.currentLayout.lists[0].cards;
+    let spillOver = this.currentLayout.lists[0].items;
     let lists = this.currentLayout.lists.slice(1);
-    lists[0].cards.push(...spillOver);
+    lists[0].items.push(...spillOver);
     this.currentLayout = {
       ...this.currentLayout,
       lists,
@@ -121,9 +136,9 @@ export class CustomizableLayoutComponent implements OnInit {
 
   removeColumnRightPressed() {
     let lists = this.currentLayout.lists;
-    let spillOver = lists[lists.length - 1].cards;
+    let spillOver = lists[lists.length - 1].items;
     const removedList = lists.pop();
-    lists[lists.length - 1].cards.push(...spillOver);
+    lists[lists.length - 1].items.push(...spillOver);
     this.currentLayout = {
       ...this.currentLayout,
       lists,
@@ -132,23 +147,15 @@ export class CustomizableLayoutComponent implements OnInit {
   }
 
   resetPressed() {
-    switch (this.windowService.deviceType.value) {
-      case DeviceType.Tablet: {
-        this.currentLayout = cloneDeep(this.getConnectedLists(this.defaultLayout.tablet));
-        break;
-      }
-      default: {
-        this.currentLayout = cloneDeep(this.getConnectedLists(this.defaultLayout.mobile));
-      }
-    }
+    this.currentLayout = cloneDeep(this.getConnectedLists(this.defaultLayout[this._layoutType]));
     this.layoutUpdated.next();
   }
 
-  cardTrackBy(index: number, name: CardElement): string {
+  cardTrackBy(index: number, name: LayoutElement): string {
     return name.componentName;
   }
 
-  listTrackBy(index: number, list: CardList): string {
+  listTrackBy(index: number, list: LayoutList): string {
     return list.containerName;
   }
 
@@ -157,70 +164,67 @@ export class CustomizableLayoutComponent implements OnInit {
     this.layoutUpdated.next();
   }
 
-  private getEmptyList(): CardList {
-    return {
-      cards: [],
-      width: '1fr',
-      connectedTo: [],
-      containerName: createGuid(),
-    };
+  private getConnectedToString(self: string): string[] {
+    return this.currentLayout.lists.map(l => l.containerName).filter(cn => cn !== self);
   }
 
-  private getConnectedLists(layout: CardLayout): CardLayout {
+  private getConnectedLists(layout: CustomizableLayout): CustomizableLayout {
     return {
       ...layout,
-      lists: layout.lists.map(l => ({
+      lists: layout?.lists.map(l => ({
         ...l,
         connectedTo: this.getConnectedToString(l.containerName),
       })),
     };
   }
 
-  private getConnectedToString(self: string): string[] {
-    return this.currentLayout.lists.map(l => l.containerName).filter(cn => cn !== self);
+  private getEmptyList(): LayoutList {
+    return {
+      items: [],
+      width: '1fr',
+      connectedTo: [],
+      containerName: createGuid(),
+    };
   }
 
-  private updateColumnFractions(fractions: string[]) {
-    const updated = {
+  private updateColumnFractions(fractions: string[]) { 
+    this.currentLayout = {
       ...this.currentLayout,
       lists: this.currentLayout.lists.map((l, i) => ({
         ...l,
         width: fractions[i] ?? 'auto',
       })),
     };
-    this.currentLayout = updated;
   }
 
   private get currentColumns(): string {
     return this.currentLayout.lists.map(l => l.width).reduce((cur, prev) => cur + ' ' + prev, '');
   }
 
-  private get currentLayout(): CardLayout {
-    switch (this.windowService.deviceType.value) {
-      case DeviceType.Tablet: {
-        return this._currentLayout.value.tablet;
-      }
-      default: {
-        return this._currentLayout.value.mobile;
-      }
-    }
+  private get currentLayout(): CustomizableLayout {
+    return this._layoutState.value[this._layoutType];
   }
 
-  private set currentLayout(newVal: CardLayout) {
-    switch (this.windowService.deviceType.value) {
-      case DeviceType.Tablet: {
-        this._currentLayout.value = {
-          ...this._currentLayout.value,
-          tablet: newVal,
-        };
-        break;
-      }
-      default: {
-        this._currentLayout.value = {
-          ...this._currentLayout.value,
-          mobile: newVal,
-        };
-      }
-    }
+  private set currentLayout(newVal: CustomizableLayout) {
+    this._layoutState.value = {
+      ...this._layoutState.value,
+      [this._layoutType]: newVal
+    };
+  }
+
+  private get layoutType$(): Observable<LayoutType> {
+    return fromEvent(this.windowRef, 'resize')
+      .pipe(
+        map((e: any) => e.target?.innerWidth),
+        startWith(this.windowRef.innerWidth),
+        map(width => {
+          if (width <= this.tabletBreakpoint) {
+            return LayoutType.Mobile;
+          } else {
+            return LayoutType.Tablet;
+          }
+          // TODO: Support desktop layout, fallback to tablet, then mobile
+        }),
+      )
   }
 }

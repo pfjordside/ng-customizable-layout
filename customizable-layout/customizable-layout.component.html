@@ -5,31 +5,18 @@
   'grid-template-columns': templateColumns$ | async,
   'grid-gap': layout.cardMargin
   }">
-
-  <app-card-layout-menu *ngIf="showEdit"
-    (removeColRightPressed)="removeColumnRightPressed()"
-    (removeColLeftPressed)="removeColumnLeftPressed()"
-    (addColRightPressed)="addColumnRightPressed()"
-    (addColLeftPressed)="addColumnLeftPressed()"
-    (resizePressed)="resizePressed()"
-    (resetPressed)="resetPressed()"
-    (editPressed)="toggleEditing()"
-    [removeDisabled]="layout.lists.length === 1"
-    [editingLayout]="editing">
-  </app-card-layout-menu>
-
   <div *ngFor="let list of layout.lists; trackBy: listTrackBy" cdkDropList
     [id]="list.containerName"
     [ngClass]="list.containerName"
-    [cdkDropListData]="list.cards"
-    [cdkDropListDisabled]="!editing"
+    [cdkDropListData]="list.items"
+    [cdkDropListDisabled]="!reordering"
     (cdkDropListDropped)="drop($event)"
     [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : null"
-    [cdkDropListDisabled]="!editing">
-    <div *ngFor="let e of list.cards; trackBy: cardTrackBy" cdkDrag
+    [cdkDropListDisabled]="!reordering">
+    <div *ngFor="let e of list.items; trackBy: cardTrackBy" cdkDrag
       [ngStyle]="{
         'margin-bottom': layout.cardMargin,
-        'cursor': editing ? 'grab' : 'default'
+        'cursor': reordering ? 'grab' : 'default'
       }">
       <ng-template *ngComponentOutlet="componentMap[e.componentName]; injector: componentInjector"></ng-template>
     </div>

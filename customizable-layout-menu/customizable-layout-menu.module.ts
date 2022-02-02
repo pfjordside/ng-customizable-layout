@@ -9,12 +9,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSliderModule } from '@angular/material/slider';
 import { TranslateModule } from '@ngx-translate/core';
 import { LFButtonModule } from 'src/app/libraries/lf-buttons/lf-button.module';
-import { CardLayoutMenuComponent } from './customizable-layout-menu/card-layout-menu.component';
-import { CardLayoutComponent } from './card-layout.component';
-import { ResizeDialogComponent } from './customizable-layout-menu/resize-dialog/resize-dialog.component';
+import { CustomizableLayoutMenuComponent } from './customizable-layout-menu.component';
+import { ResizeDialogComponent } from './resize-dialog/resize-dialog.component';
 
 @NgModule({
-  declarations: [CardLayoutMenuComponent, ResizeDialogComponent],
+  declarations: [CustomizableLayoutMenuComponent, ResizeDialogComponent],
   entryComponents: [ResizeDialogComponent],
   imports: [
     MatSliderModule,
@@ -28,6 +27,6 @@ import { ResizeDialogComponent } from './customizable-layout-menu/resize-dialog/
     CommonModule,
     FormsModule,
   ],
-  exports: [CardLayoutComponent],
+  exports: [CustomizableLayoutMenuComponent],
 })
 export class CustomizableLayoutMenuModule {}

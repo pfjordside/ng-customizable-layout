@@ -3,13 +3,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { MockComponents } from 'ng-mocks';
-import { IconComponent } from '../../icon/icon.component';
-import { CardLayoutMenuComponent } from './card-layout-menu.component';
+import { IconComponent } from 'src/app/shared/components/icon/icon.component';
+import { CustomizableLayoutMenuComponent } from './customizable-layout-menu.component';
 
-describe('CardLayoutMenuComponent', () => {
-  let spectator: Spectator<CardLayoutMenuComponent>;
+describe('CustomizableLayoutMenuComponent', () => {
+  let spectator: Spectator<CustomizableLayoutMenuComponent>;
   const createComponent = createComponentFactory({
-    component: CardLayoutMenuComponent,
+    component: CustomizableLayoutMenuComponent,
     declarations: [MockComponents(IconComponent)],
     imports: [MatSlideToggleModule, MatMenuModule, MatIconModule],
   });

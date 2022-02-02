@@ -1,14 +1,20 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator';
 import { MockComponents } from 'ng-mocks';
-import { CardLayoutMenuComponent } from './card-layout-menu/card-layout-menu.component';
-import { CardLayoutComponent } from './card-layout.component';
 import { CustomizableLayoutComponent } from './customizable-layout.component';
+import { LayoutType } from './model/layout-type.enum';
+import { WINDOW_REF } from './model/window-ref.token';
 
 describe('CustomizableLayoutComponent', () => {
   let spectator: Spectator<CustomizableLayoutComponent>;
   const createComponent = createComponentFactory({
-    component: CardLayoutComponent,
-    declarations: [MockComponents(CardLayoutMenuComponent)],
+    providers: [
+      {
+        provide: WINDOW_REF,
+        useValue: window
+      }
+    ],
+    component: CustomizableLayoutComponent,
+    declarations: [MockComponents(CustomizableLayoutComponent)],
   });
 
   it('should create', () => {
@@ -17,7 +23,7 @@ describe('CustomizableLayoutComponent', () => {
         defaultLayout: {
           name: 'mobile',
           persist: false,
-          mobile: {
+          [LayoutType.Mobile]: {
             cardMargin: '1rem',
             lists: [],
           },

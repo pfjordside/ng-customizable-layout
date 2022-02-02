@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-card-layout-menu',
-  templateUrl: './card-layout-menu.component.html',
-  styleUrls: ['./card-layout-menu.component.scss'],
+  selector: 'ng-customizable-layout-menu',
+  templateUrl: './customizable-layout-menu.component.html',
+  styleUrls: ['./customizable-layout-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CardLayoutMenuComponent {
+export class CustomizableLayoutMenuComponent {
   @Output() removeColRightPressed = new EventEmitter<void>();
   @Output() removeColLeftPressed = new EventEmitter<void>();
   @Output() addColRightPressed = new EventEmitter<void>();
