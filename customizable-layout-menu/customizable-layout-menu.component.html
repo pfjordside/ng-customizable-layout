@@ -1,51 +1,48 @@
 
 <div class="actions">
-  <button lf-square-icon-btn
+  <button mat-icon-button
     id="drag-btn"
     (click)="editPressed.emit()"
     [ngClass]="{'editing': editingLayout}">
     <mat-icon>drag_indicator</mat-icon>
   </button>
   
-  <button lf-square-icon-btn #cardLayoutSettingsBtn="matMenuTrigger"
+  <button mat-icon-button #cardLayoutSettingsBtn="matMenuTrigger"
     [matMenuTriggerFor]="cardLayoutMenu">
     <mat-icon>menu</mat-icon>
   </button>
 </div>
 
 <mat-menu class="app-settings-menu" #cardLayoutMenu="matMenu" xPosition="before">
-  <button mat-menu-item (click)="resizePressed.emit()" class="tablet-n-up">
-    <p translate>layoutMenu.adjustColumns</p>
-  </button>
   <button mat-menu-item [matMenuTriggerFor]="addCols" class="tablet-n-up">
-    <p translate>layoutMenu.addColumns</p>
+    <p translate>Add columns</p>
   </button>
   <button mat-menu-item [matMenuTriggerFor]="removeCols" class="tablet-n-up" [disabled]="removeDisabled">
-    <p translate>layoutMenu.removeColumns</p>
+    <p translate>Remove columns</p>
   </button>
   <button mat-menu-item (click)="resetPressed.emit()">
     <mat-icon>restart_alt</mat-icon>
-    <p translate>layoutMenu.reset</p>
+    <p translate>Reset</p>
   </button>
 </mat-menu>
 
 <mat-menu #addCols="matMenu">
   <button mat-menu-item (click)="addColRightPressed.emit()">
     <mat-icon>first_page</mat-icon>
-    <p translate>layoutMenu.toTheRight</p>
+    <p translate>Add column right</p>
   </button>
   <button mat-menu-item (click)="addColLeftPressed.emit()">
     <mat-icon>last_page</mat-icon>
-    <p translate>layoutMenu.toTheLeft</p>
+    <p translate>Add column left</p>
   </button>
 </mat-menu>
 <mat-menu #removeCols="matMenu">
   <button mat-menu-item (click)="removeColRightPressed.emit()">
     <mat-icon>first_page</mat-icon>
-    <p translate>layoutMenu.toTheRight</p>
+    <p translate>Remove column right</p>
   </button>
   <button mat-menu-item (click)="removeColLeftPressed.emit()">
     <mat-icon>last_page</mat-icon>
-    <p translate>layoutMenu.toTheLeft</p>
+    <p translate>Remove column left</p>
   </button>
 </mat-menu>

@@ -8,19 +8,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSliderModule } from '@angular/material/slider';
 import { TranslateModule } from '@ngx-translate/core';
-import { LFButtonModule } from 'src/app/libraries/lf-buttons/lf-button.module';
 import { CustomizableLayoutMenuComponent } from './customizable-layout-menu.component';
-import { ResizeDialogComponent } from './resize-dialog/resize-dialog.component';
 
 @NgModule({
-  declarations: [CustomizableLayoutMenuComponent, ResizeDialogComponent],
-  entryComponents: [ResizeDialogComponent],
+  declarations: [CustomizableLayoutMenuComponent],
   imports: [
     MatSliderModule,
     MatDialogModule,
     TranslateModule,
     MatInputModule,
-    LFButtonModule,
     DragDropModule,
     MatMenuModule,
     MatIconModule,

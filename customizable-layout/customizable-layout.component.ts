@@ -3,10 +3,9 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Inp
 import { MatDialog } from '@angular/material/dialog';
 import { cloneDeep } from 'lodash-es';
 import { BehaviorSubject, combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
-import { filter, first, map, startWith } from 'rxjs/operators';
+import { filter, map, startWith } from 'rxjs/operators';
 import { StateItem } from 'src/app/libraries/lf-web-utils/state-item/state-item.class';
 import { createGuid } from 'src/app/shared/functions/create-guid.fn';
-import { ResizeDialogComponent } from '../customizable-layout-menu/resize-dialog/resize-dialog.component';
 import { CustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
 import { LayoutElement } from './model/layout-element.interface';
@@ -39,7 +38,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   templateColumns$: Observable<string>;
   layout$: Observable<CustomizableLayout>;
 
-  constructor(@Inject(WINDOW_REF) private windowRef: Window, private matDialog: MatDialog, ) {}
+  constructor(@Inject(WINDOW_REF) private windowRef: Window, private matDialog: MatDialog) {}
 
   ngOnInit(): void {
     this.subs.add(this.layoutType$.subscribe((type) => {
@@ -92,19 +91,6 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   toggleEditing() {
     this.reordering = !this.reordering;
     this.reorderingChanged.emit(this.reordering);
-  }
-
-  resizePressed() {
-    this.matDialog
-      .open(ResizeDialogComponent, { data: { fractions: this.currentColumns.split(' ') } })
-      .afterClosed()
-      .pipe(first())
-      .subscribe((fractions: string[] | null) => {
-        if (fractions !== null) {
-          this.updateColumnFractions(fractions);
-          this.layoutUpdated.next();
-        }
-      });
   }
 
   addColumnRightPressed() {
