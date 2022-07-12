@@ -21,7 +21,6 @@ import { WINDOW_REF } from './model/window-ref.token';
 })
 export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
-  @Output() reorderingChanged = new EventEmitter<boolean>();
   @Input() componentMap: { [key: string]: Type<any> };
   @Input() defaultLayout: CustomizableLayoutConfig;
   @Input() componentInjector: Injector;
@@ -86,11 +85,6 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
       layout.lists[currListIndex].items = event.container.data;
     }
     this.currentLayout = { ...layout };
-  }
-
-  toggleEditing() {
-    this.reordering = !this.reordering;
-    this.reorderingChanged.emit(this.reordering);
   }
 
   addColumnRightPressed() {
