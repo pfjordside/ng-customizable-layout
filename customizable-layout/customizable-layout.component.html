@@ -14,6 +14,7 @@
     [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : null"
     [cdkDropListDisabled]="!reordering">
     <div *ngFor="let e of list.items; trackBy: cardTrackBy" cdkDrag
+      [ngClass]="{ 'reordering': reordering }"
       [ngStyle]="{
         'margin-bottom': layout.cardMargin,
         'cursor': reordering ? 'grab' : 'default'

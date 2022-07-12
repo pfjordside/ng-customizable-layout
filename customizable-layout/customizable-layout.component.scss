@@ -6,6 +6,11 @@
     flex: auto;
     display: flex;
     flex-direction: column;
+    > div.reordering {
+      padding: 4px;
+      border-radius: 3px;
+      outline: 3px dashed lightgray;
+    }
   }
 }
 
