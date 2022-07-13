@@ -2,8 +2,8 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
-import { StateItem } from 'src/app/libraries/lf-web-utils/state-item/state-item.class';
 import { createGuid } from 'src/app/shared/functions/create-guid.fn';
+import { StateItem } from '../../lf-web-utils/state-item/state-item.class';
 import { ComponentMap } from './model/component-map.interface';
 import { CustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
@@ -65,8 +65,12 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     this._layoutState = new StateItem<CustomizableLayoutConfig>(
       this.defaultLayout,
       this.defaultLayout.name,
-      this.defaultLayout.persist ? this.windowRef.localStorage : null
+      this.windowRef.localStorage
     );
+
+    if (this._layoutState.value.version < this.defaultLayout.version) {
+      this._layoutState.value = this.createCopy(this.defaultLayout);
+    }
   }
 
   drop(event: CdkDragDrop<LayoutElement[]>) {
@@ -194,7 +198,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
       )
   }
 
-  private createCopy(layout: CustomizableLayout): CustomizableLayout {
-    return (JSON.parse(JSON.stringify(layout)));
+  private createCopy(obj: any): any {
+    return (JSON.parse(JSON.stringify(obj)));
   }
 }

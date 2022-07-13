@@ -22,7 +22,7 @@ describe('CustomizableLayoutComponent', () => {
       props: {
         defaultLayout: {
           name: 'mobile',
-          persist: false,
+          version: 1,
           [LayoutType.Mobile]: {
             cardMargin: '1rem',
             lists: [],
