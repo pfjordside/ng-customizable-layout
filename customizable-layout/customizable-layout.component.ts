@@ -1,7 +1,6 @@
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output, Type } from '@angular/core';
-import { cloneDeep } from 'lodash-es';
-import { BehaviorSubject, combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
+import { combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
 import { StateItem } from 'src/app/libraries/lf-web-utils/state-item/state-item.class';
 import { createGuid } from 'src/app/shared/functions/create-guid.fn';
@@ -31,17 +30,17 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   private subs = new Subscription();
   private _layoutState: StateItem<CustomizableLayoutConfig>;
   private _layoutType: LayoutType = LayoutType.Mobile; // Mobile first <3
-  layoutUpdated = new BehaviorSubject<void>(null);
   layout$: Observable<CustomizableLayout>;
   templateColumns$: Observable<string>;
 
   constructor(@Inject(WINDOW_REF) private windowRef: Window) {}
 
   ngOnInit(): void {
+    this.initializeState();
     this.subs.add(this.layoutType$.subscribe((type) => {
       this._layoutType = type;
     }));
-    this.layout$ = combineLatest([this.layoutType$, this.layoutUpdated]).pipe(
+    this.layout$ = combineLatest([this.layoutType$, this._layoutState.value$]).pipe(
       filter(u => u !== null && u !== undefined),
       map(() => {
         const layout = this.getConnectedLists(this.currentLayout);
@@ -49,12 +48,11 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
         return layout;
       })
     );
-    this.templateColumns$ = combineLatest([this.layoutType$, this.layoutUpdated]).pipe(
+    this.templateColumns$ = combineLatest([this.layoutType$, this._layoutState.value$]).pipe(
       map(() => {
         return this.currentColumns;
       })
     );
-    this.initializeState();
   }
 
   ngOnDestroy(): void {
@@ -125,8 +123,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   }
 
   resetPressed() {
-    this.currentLayout = cloneDeep(this.getConnectedLists(this.defaultLayout[this._layoutType]));
-    this.layoutUpdated.next();
+    this.currentLayout = this.createCopy(this.getConnectedLists(this.defaultLayout[this._layoutType]));
   }
 
   cardTrackBy(index: number, name: LayoutElement): string {
@@ -139,7 +136,6 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
 
   private updateLayout() {
     this.currentLayout = this.getConnectedLists(this.currentLayout);
-    this.layoutUpdated.next();
   }
 
   private getConnectedLists(layout: CustomizableLayout): CustomizableLayout {
@@ -194,5 +190,9 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
           // TODO: Support desktop layout, fallback to tablet, then mobile
         }),
       )
+  }
+
+  private createCopy(layout: CustomizableLayout): CustomizableLayout {
+    return (JSON.parse(JSON.stringify(layout)));
   }
 }
