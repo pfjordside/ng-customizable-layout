@@ -1,6 +1,5 @@
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output, Type } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { cloneDeep } from 'lodash-es';
 import { BehaviorSubject, combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
@@ -21,23 +20,22 @@ import { WINDOW_REF } from './model/window-ref.token';
 })
 export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
-  @Input() componentMap: { [key: string]: Type<any> };
   @Input() defaultLayout: CustomizableLayoutConfig;
+  @Input() componentMap: { [key: string]: Type<any> };
   @Input() componentInjector: Injector;
   @Input() desktopBreakpoint: number = 1024;
   @Input() tabletBreakpoint = 990;
   @Input() mobileBreakpoint = 420;
-  @Input() showEdit: boolean = true;
-  @Input() reordering: boolean;
+  @Input() editing: boolean;
+  
   private subs = new Subscription();
-
   private _layoutState: StateItem<CustomizableLayoutConfig>;
   private _layoutType: LayoutType = LayoutType.Mobile; // Mobile first <3
   layoutUpdated = new BehaviorSubject<void>(null);
-  templateColumns$: Observable<string>;
   layout$: Observable<CustomizableLayout>;
+  templateColumns$: Observable<string>;
 
-  constructor(@Inject(WINDOW_REF) private windowRef: Window, private matDialog: MatDialog) {}
+  constructor(@Inject(WINDOW_REF) private windowRef: Window) {}
 
   ngOnInit(): void {
     this.subs.add(this.layoutType$.subscribe((type) => {
@@ -67,7 +65,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     this._layoutState = new StateItem<CustomizableLayoutConfig>(
       this.defaultLayout,
       this.defaultLayout.name,
-      this.defaultLayout.persist ? localStorage : null
+      this.defaultLayout.persist ? this.windowRef.localStorage : null
     );
   }
 
@@ -144,10 +142,6 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     this.layoutUpdated.next();
   }
 
-  private getConnectedToString(self: string): string[] {
-    return this.currentLayout.lists.map(l => l.containerName).filter(cn => cn !== self);
-  }
-
   private getConnectedLists(layout: CustomizableLayout): CustomizableLayout {
     return {
       ...layout,
@@ -158,22 +152,16 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     };
   }
 
+  private getConnectedToString(self: string): string[] {
+    return this.currentLayout.lists.map(l => l.containerName).filter(cn => cn !== self);
+  }
+
   private getEmptyList(): LayoutList {
     return {
       items: [],
       width: '1fr',
       connectedTo: [],
       containerName: createGuid(),
-    };
-  }
-
-  private updateColumnFractions(fractions: string[]) { 
-    this.currentLayout = {
-      ...this.currentLayout,
-      lists: this.currentLayout.lists.map((l, i) => ({
-        ...l,
-        width: fractions[i] ?? 'auto',
-      })),
     };
   }
 
