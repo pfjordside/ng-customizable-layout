@@ -1,11 +1,10 @@
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
 import { createGuid } from 'src/app/shared/functions/create-guid.fn';
-import { StateItem } from '../../lf-web-utils/state-item/state-item.class';
 import { ComponentMap } from './model/component-map.interface';
-import { CustomizableLayoutConfig } from './model/customizable-layout-config.interface';
+import { CustomizableLayoutConfig, isCustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
 import { LayoutElement } from './model/layout-element.interface';
 import { LayoutList } from './model/layout-list.interface';
@@ -29,9 +28,10 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   @Input() tabletBreakpoint = 990;
   @Input() mobileBreakpoint = 420;
   
-  private subs = new Subscription();
-  private _layoutState: StateItem<CustomizableLayoutConfig>;
+  private _layoutState = new BehaviorSubject<CustomizableLayoutConfig | null>(null);
   private _layoutType: LayoutType = LayoutType.Mobile; // Mobile first <3
+  private subs = new Subscription();
+  
   layout$: Observable<CustomizableLayout>;
   templateColumns$: Observable<string>;
 
@@ -42,7 +42,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     this.subs.add(this.layoutType$.subscribe((type) => {
       this._layoutType = type;
     }));
-    this.layout$ = combineLatest([this.layoutType$, this._layoutState.value$]).pipe(
+    this.layout$ = combineLatest([this.layoutType$, this._layoutState]).pipe(
       filter(u => u !== null && u !== undefined),
       map(() => {
         const layout = this.getConnectedLists(this.currentLayout);
@@ -50,7 +50,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
         return layout;
       })
     );
-    this.templateColumns$ = combineLatest([this.layoutType$, this._layoutState.value$]).pipe(
+    this.templateColumns$ = combineLatest([this.layoutType$, this._layoutState]).pipe(
       map(() => {
         return this.currentColumns;
       })
@@ -62,14 +62,11 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   }
 
   initializeState() {
-    this._layoutState = new StateItem<CustomizableLayoutConfig>(
-      this.defaultLayout,
-      this.defaultLayout.name,
-      this.windowRef.localStorage
-    );
-
-    if (this._layoutState.value.version < this.defaultLayout.version) {
-      this._layoutState.value = this.createCopy(this.defaultLayout);
+    let storedLayout = JSON.parse(this.windowRef.localStorage.getItem(this.defaultLayout.name));
+    if (isCustomizableLayoutConfig(storedLayout) && this.defaultLayout.version <= storedLayout.version) {
+        this._layoutState.next(storedLayout);
+    } else {
+      this._layoutState.next(this.createCopy(this.defaultLayout));
     }
   }
 
@@ -172,14 +169,16 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   }
 
   private get currentLayout(): CustomizableLayout {
-    return this._layoutState.value[this._layoutType];
+    return this._layoutState.getValue()[this._layoutType];
   }
 
   private set currentLayout(newVal: CustomizableLayout) {
-    this._layoutState.value = {
-      ...this._layoutState.value,
+    const updatedLayout = {
+      ...this._layoutState.getValue(),
       [this._layoutType]: newVal
-    };
+    }
+    this._layoutState.next(updatedLayout);
+    this.windowRef.localStorage.setItem(updatedLayout.name, JSON.stringify(updatedLayout));
   }
 
   private get layoutType$(): Observable<LayoutType> {
@@ -199,6 +198,6 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   }
 
   private createCopy(obj: any): any {
-    return (JSON.parse(JSON.stringify(obj)));
+    return JSON.parse(JSON.stringify(obj));
   }
 }
