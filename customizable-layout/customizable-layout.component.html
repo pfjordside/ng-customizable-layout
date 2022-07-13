@@ -16,10 +16,11 @@
     <div *ngFor="let e of list.items; trackBy: cardTrackBy" cdkDrag
       [ngClass]="{ 'editing': editing }"
       [ngStyle]="{
+        'display': componentMap[e.componentName].hidden ? 'none' : 'block',
         'margin-bottom': layout.cardMargin,
         'cursor': editing ? 'grab' : 'default'
       }">
-      <ng-template *ngComponentOutlet="componentMap[e.componentName]; injector: componentInjector"></ng-template>
+      <ng-template *ngComponentOutlet="componentMap[e.componentName].component; injector: componentInjector"></ng-template>
     </div>
   </div>
 </div>

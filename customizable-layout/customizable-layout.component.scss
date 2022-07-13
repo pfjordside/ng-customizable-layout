@@ -6,10 +6,13 @@
     flex: auto;
     display: flex;
     flex-direction: column;
-    > div.editing {
-      padding: 4px;
+    > div {
       border-radius: 3px;
-      outline: 3px dashed lightgray;
+      transition: padding 0.3s ease-in-out;
+      &.editing {
+        padding: 4px;
+        outline: 3px dashed lightgray;
+      }
     }
   }
 }

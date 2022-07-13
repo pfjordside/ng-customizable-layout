@@ -1,9 +1,10 @@
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output, Type } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
 import { StateItem } from 'src/app/libraries/lf-web-utils/state-item/state-item.class';
 import { createGuid } from 'src/app/shared/functions/create-guid.fn';
+import { ComponentMap } from './model/component-map.interface';
 import { CustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
 import { LayoutElement } from './model/layout-element.interface';
@@ -20,12 +21,13 @@ import { WINDOW_REF } from './model/window-ref.token';
 export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
   @Input() defaultLayout: CustomizableLayoutConfig;
-  @Input() componentMap: { [key: string]: Type<any> };
   @Input() componentInjector: Injector;
-  @Input() desktopBreakpoint: number = 1024;
+  @Input() componentMap: ComponentMap;
+  @Input() editing: boolean;
+
+  @Input() desktopBreakpoint = 1024;
   @Input() tabletBreakpoint = 990;
   @Input() mobileBreakpoint = 420;
-  @Input() editing: boolean;
   
   private subs = new Subscription();
   private _layoutState: StateItem<CustomizableLayoutConfig>;
