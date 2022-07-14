@@ -13,11 +13,10 @@
     (cdkDropListDropped)="drop($event)"
     [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : null"
     [cdkDropListDisabled]="!editing">
-    <div *ngFor="let e of list.items; trackBy: cardTrackBy" cdkDrag
+    <div *ngFor="let e of list.items | filter:withoutHiddenElements; trackBy: cardTrackBy" cdkDrag
       [cdkDragStartDelay]="dragDelay$ | async"
       [ngClass]="{ 'editing': editing }"
       [ngStyle]="{
-        'display': componentMap[e.componentName].hidden ? 'none' : 'block',
         'margin-bottom': layout.cardMargin,
         'cursor': editing ? 'grab' : 'default'
       }">

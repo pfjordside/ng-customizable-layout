@@ -98,13 +98,13 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       const index = layout.lists.map(l => l.containerName).indexOf(event.container.id);
-      layout.lists[index].items = event.container.data;
+      layout.lists[index].items = [...event.container.data];
     } else {
       transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
       const prevListIndex = layout.lists.map(l => l.containerName).indexOf(event.previousContainer.id);
       const currListIndex = layout.lists.map(l => l.containerName).indexOf(event.container.id);
-      layout.lists[prevListIndex].items = event.previousContainer.data;
-      layout.lists[currListIndex].items = event.container.data;
+      layout.lists[prevListIndex].items = [...event.previousContainer.data];
+      layout.lists[currListIndex].items = [...event.container.data];
     }
     this.currentLayout = { ...layout };
   }
@@ -158,6 +158,10 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
 
   listTrackBy(index: number, list: LayoutList): string {
     return list.containerName;
+  }
+
+  withoutHiddenElements(elem: LayoutElement): boolean {
+    return !this?.componentMap?.[elem.componentName]?.hidden ?? true;
   }
 
   private updateLayout() {

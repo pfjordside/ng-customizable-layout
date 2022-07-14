@@ -2,13 +2,11 @@
 
 .drag-container {
   display: grid;
-  > div {
-    flex: auto;
-    display: flex;
-    flex-direction: column;
-    > div {
+  > div.cdk-drop-list {
+    > div.cdk-drag {
       border-radius: 3px;
       transition: padding 0.3s ease-in-out;
+      user-select: none;
       &.editing {
         padding: 4px;
         outline: 3px dashed lightgray;
