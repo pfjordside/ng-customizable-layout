@@ -56,7 +56,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
       this.dragDelay$ = this.layoutType$.pipe(map(layout => {
         switch (layout) {
           case LayoutType.Mobile : {
-            return 200;
+            return 150;
           } default : {
             return 0;
           }
@@ -159,11 +159,7 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   listTrackBy(index: number, list: LayoutList): string {
     return list.containerName;
   }
-
-  withoutHiddenElements(elem: LayoutElement): boolean {
-    return !this?.componentMap?.[elem.componentName]?.hidden ?? true;
-  }
-
+  
   private updateLayout() {
     this.currentLayout = this.getConnectedLists(this.currentLayout);
   }
