@@ -32,6 +32,8 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   private _layoutType: LayoutType = LayoutType.Mobile; // Mobile first <3
   private subs = new Subscription();
   
+  dragDelay$: Observable<number>;
+  layoutType$: Observable<LayoutType>;
   layout$: Observable<CustomizableLayout>;
   templateColumns$: Observable<string>;
 
@@ -39,6 +41,27 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeState();
+    this.layoutType$ = fromEvent(this.windowRef, 'resize')
+    .pipe(
+      map((e: any) => e.target?.innerWidth),
+      startWith(this.windowRef.innerWidth),
+      map(width => {
+        if (width <= this.tabletBreakpoint) {
+          return LayoutType.Mobile;
+        } else {
+          return LayoutType.Tablet;
+        }
+        // TODO: Support desktop layout, fallback to tablet, then mobile
+      }));
+      this.dragDelay$ = this.layoutType$.pipe(map(layout => {
+        switch (layout) {
+          case LayoutType.Mobile : {
+            return 200;
+          } default : {
+            return 0;
+          }
+        }
+      }));
     this.subs.add(this.layoutType$.subscribe((type) => {
       this._layoutType = type;
     }));
@@ -179,22 +202,6 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
     }
     this._layoutState.next(updatedLayout);
     this.windowRef.localStorage.setItem(updatedLayout.name, JSON.stringify(updatedLayout));
-  }
-
-  private get layoutType$(): Observable<LayoutType> {
-    return fromEvent(this.windowRef, 'resize')
-      .pipe(
-        map((e: any) => e.target?.innerWidth),
-        startWith(this.windowRef.innerWidth),
-        map(width => {
-          if (width <= this.tabletBreakpoint) {
-            return LayoutType.Mobile;
-          } else {
-            return LayoutType.Tablet;
-          }
-          // TODO: Support desktop layout, fallback to tablet, then mobile
-        }),
-      )
   }
 
   private createCopy(obj: any): any {
