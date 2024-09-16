@@ -1,8 +1,7 @@
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { BehaviorSubject, combineLatest, fromEvent, Observable, Subscription } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
-import { createGuid } from 'src/app/shared/functions/create-guid.fn';
 import { ComponentMap } from './model/component-map.interface';
 import { CustomizableLayoutConfig, isCustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
@@ -10,19 +9,32 @@ import { LayoutElement } from './model/layout-element.interface';
 import { LayoutList } from './model/layout-list.interface';
 import { LayoutType } from './model/layout-type.enum';
 import { WINDOW_REF } from './model/window-ref.token';
+import { CommonModule } from '@angular/common';
+import { createGuid } from '../utils/create-guid.fn';
 
 @Component({
+  standalone: true,
   selector: 'ng-customizable-layout',
   templateUrl: './customizable-layout.component.html',
   styleUrls: ['./customizable-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    DragDropModule,
+    CommonModule,
+  ],
+  providers: [
+    {
+      provide: WINDOW_REF,
+      useValue: window
+    }
+  ],
 })
 export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
-  @Input() defaultLayout: CustomizableLayoutConfig;
-  @Input() componentInjector: Injector;
-  @Input() componentMap: ComponentMap;
-  @Input() editing: boolean;
+  @Input() defaultLayout!: CustomizableLayoutConfig;
+  @Input() componentInjector!: Injector;
+  @Input() componentMap!: ComponentMap;
+  @Input() editing!: boolean = false;
 
   @Input() desktopBreakpoint = 1024;
   @Input() tabletBreakpoint = 990;
@@ -32,10 +44,10 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   private _layoutType: LayoutType = LayoutType.Mobile; // Mobile first <3
   private subs = new Subscription();
   
-  dragDelay$: Observable<number>;
-  layoutType$: Observable<LayoutType>;
-  layout$: Observable<CustomizableLayout>;
-  templateColumns$: Observable<string>;
+  dragDelay$!: Observable<number>;
+  layoutType$!: Observable<LayoutType>;
+  layout$!: Observable<CustomizableLayout>;
+  templateColumns$!: Observable<string>;
 
   constructor(@Inject(WINDOW_REF) private windowRef: Window) {}
 
@@ -85,8 +97,8 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   }
 
   initializeState() {
-    let storedLayout = JSON.parse(this.windowRef.localStorage.getItem(this.defaultLayout.name));
-    if (isCustomizableLayoutConfig(storedLayout) && this.defaultLayout.version <= storedLayout.version) {
+    let storedLayout = this.windowRef.localStorage.getItem(this.defaultLayout.name);
+    if (storedLayout && isCustomizableLayoutConfig(storedLayout) && this.defaultLayout.version <= storedLayout.version) {
         this._layoutState.next(storedLayout);
     } else {
       this._layoutState.next(this.createCopy(this.defaultLayout));
@@ -149,7 +161,10 @@ export class CustomizableLayoutComponent implements OnInit, OnDestroy {
   }
 
   resetPressed() {
-    this.currentLayout = this.createCopy(this.getConnectedLists(this.defaultLayout[this._layoutType]));
+    const defaultLayout =  this.defaultLayout[this._layoutType];
+    if (defaultLayout) {
+      this.currentLayout = this.createCopy(this.getConnectedLists(defaultLayout));
+    }
   }
 
   cardTrackBy(index: number, name: LayoutElement): string {
