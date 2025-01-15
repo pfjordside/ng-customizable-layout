@@ -1,3 +1,6 @@
+import { Type } from '@angular/core';
+
 export interface LayoutElement {
-  componentName: string;
+  component: Type<any>;
+  hidden?: boolean;
 }

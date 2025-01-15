@@ -1,15 +1,10 @@
-@import 'src/styles/variables';
-
 div.actions {
   display: flex;
   align-items: center;
   button {
-    .mat-icon {
-      color: $color-gray;
-    }
     &.editing {
       .mat-icon {
-        color: $color-blue;
+        color: var(--color-primary); 
       }
     }
     &:last-child {
@@ -18,9 +13,19 @@ div.actions {
   }
 }
 
-.tablet-n-up {
+.tablet {
   display: none;
-  @media screen and (min-width: $tablet-width) {
+  @media screen and (min-width: var(--breakpoint-tablet)) {
+    display: block;
+  }
+  @media screen and (max-width: var(--breakpoint-desktop)) {
+    display: block;
+  }
+}
+
+.desktop {
+  display: none;
+  @media screen and (min-width: var(--breakpoint-desktop)) {
     display: block;
   }
 }

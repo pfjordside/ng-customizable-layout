@@ -1,4 +1,9 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   standalone: true,
@@ -6,17 +11,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   templateUrl: './customizable-layout-menu.component.html',
   styleUrls: ['./customizable-layout-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatSliderModule,
-    MatDialogModule,
-    TranslateModule,
-    MatInputModule,
-    DragDropModule,
-    MatMenuModule,
-    MatIconModule,
-    CommonModule,
-    FormsModule,
-  ]
+  imports: [DragDropModule, MatMenuModule, MatIconModule, CommonModule, FormsModule],
 })
 export class CustomizableLayoutMenuComponent {
   @Output() removeColRightPressed = new EventEmitter<void>();
@@ -26,7 +21,9 @@ export class CustomizableLayoutMenuComponent {
   @Output() resizePressed = new EventEmitter<void>();
   @Output() resetPressed = new EventEmitter<void>();
   @Output() editPressed = new EventEmitter<void>();
-  @Input() removeDisabled: boolean;
-  @Input() resizingLayout: boolean;
-  @Input() editingLayout: boolean;
+  @Input() removeDisabled!: boolean;
+  @Input() resizingLayout!: boolean;
+  @Input() editingLayout!: boolean;
+
+  constructor() {}
 }

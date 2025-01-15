@@ -1,0 +1,11 @@
+<ng-customizable-layout #layout [defaultLayout]="layoutConfig" [editing]="editing()"></ng-customizable-layout>
+<ng-customizable-layout-menu
+  [editingLayout]="editing()"
+  (editPressed)="editPressed()"
+  (resetPressed)="layout.resetPressed()"
+  (addColRightPressed)="layout.addColumnRightPressed()"
+  (addColLeftPressed)="layout.addColumnLeftPressed()"
+  (removeColRightPressed)="layout.removeColumnRightPressed()"
+  (removeColLeftPressed)="layout.removeColumnLeftPressed()"
+>
+</ng-customizable-layout-menu>

@@ -1,26 +1,34 @@
-
-
-<div class="drag-container" id="drag-container" *ngIf="(layout$ | async); let layout"
+<div
+  class="drag-container"
+  id="drag-container"
+  *ngIf="layout(); let layout"
   [ngStyle]="{
-  'grid-template-columns': templateColumns$ | async,
-  'grid-gap': layout.cardMargin
-  }">
-  <div *ngFor="let list of layout.lists; trackBy: listTrackBy" cdkDropList
+    'grid-template-columns': templateColumns(),
+    'grid-gap': layout.cardMargin
+  }"
+>
+  <div
+    *ngFor="let list of layout.lists; trackBy: listTrackBy"
+    cdkDropList
     [id]="list.containerName"
     [ngClass]="list.containerName"
     [cdkDropListData]="list.items"
     [cdkDropListDisabled]="!editing"
     (cdkDropListDropped)="drop($event)"
-    [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : null"
-    [cdkDropListDisabled]="!editing">
-    <div *ngFor="let e of list.items | withoutHidden:componentMap; trackBy: cardTrackBy" cdkDrag
-      [cdkDragStartDelay]="dragDelay$ | async"
-      [ngClass]="{ 'editing': editing }"
+    [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : []"
+    [cdkDropListDisabled]="!editing"
+  >
+    <div
+      *ngFor="let e of list.items | withoutHidden; trackBy: cardTrackBy"
+      cdkDrag
+      [cdkDragStartDelay]="dragDelay()"
+      [ngClass]="{ editing: editing }"
       [ngStyle]="{
         'margin-bottom': layout.cardMargin,
-        'cursor': editing ? 'grab' : 'default'
-      }">
-      <ng-template *ngComponentOutlet="componentMap[e.componentName].component; injector: componentInjector"></ng-template>
+        cursor: editing ? 'grab' : 'default'
+      }"
+    >
+      <ng-template *ngComponentOutlet="e.component"></ng-template>
     </div>
   </div>
 </div>
