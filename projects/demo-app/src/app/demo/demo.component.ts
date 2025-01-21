@@ -7,8 +7,4 @@ import { Component } from '@angular/core';
   templateUrl: './demo.component.html',
   styleUrl: './demo.component.scss',
 })
-export class DemoComponent {
-  constructor() {
-    console.log('DemoComponent created');
-  }
-}
+export class DemoComponent {}

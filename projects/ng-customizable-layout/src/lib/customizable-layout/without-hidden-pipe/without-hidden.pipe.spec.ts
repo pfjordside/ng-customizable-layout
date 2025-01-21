@@ -17,16 +17,13 @@ describe('WithoutHiddenPipe', () => {
     let array: LayoutElement[];
     let componentMap: ComponentMap;
     beforeEach(() => {
-      array = [
-        { componentName: 'SomeComponent' },
-        { componentName: 'SomeOtherComponent'}
-      ];
+      array = [{ componentName: 'SomeComponent' }, { componentName: 'SomeOtherComponent' }];
       componentMap = {
         ['SomeOtherComponent']: {
           component: 'SomeOtherComponent' as any,
-          hidden: true
-        }
-      }
+          hidden: true,
+        },
+      };
     });
 
     it('should filter input array using provided filter function', () => {
@@ -36,7 +33,7 @@ describe('WithoutHiddenPipe', () => {
     });
 
     it('should return input array if no componentMap provided', () => {
-      const res = pipe.transform(array, null);
+      const res = pipe.transform(array, {});
       expect(res.length).toBe(2);
     });
   });

@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { ComponentMap } from '../model/component-map.interface';
 import { LayoutElement } from '../model/layout-element.interface';
 
 @Pipe({
@@ -6,7 +7,7 @@ import { LayoutElement } from '../model/layout-element.interface';
   standalone: true,
 })
 export class WithoutHiddenPipe implements PipeTransform {
-  transform(arr: LayoutElement[]): LayoutElement[] {
-    return arr.filter((v) => !v.hidden) ?? arr;
+  transform(arr: LayoutElement[], componentMap: ComponentMap): LayoutElement[] {
+    return arr && componentMap ? arr.filter((v) => !componentMap[v.componentName]?.hidden) : arr;
   }
 }

@@ -1,5 +1,5 @@
-import { Type } from "@angular/core";
+import { Type } from '@angular/core';
 
 export interface ComponentMap {
-  [key: string]: { component: Type<any>, hidden?: boolean }
+  [key: string]: { component: Type<any>; hidden?: boolean };
 }
