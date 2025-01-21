@@ -1,10 +1,22 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, EventEmitter, Inject, Input, OnInit, Output, signal } from '@angular/core';
+import { NgClass, NgComponentOutlet, NgStyle } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  EventEmitter,
+  Inject,
+  Input,
+  OnInit,
+  Output,
+  signal,
+  Type,
+} from '@angular/core';
 import { createGuid } from '../utils/create-guid.fn';
+import { ComponentMap } from './model/component-map.interface';
 import { CustomizableLayoutConfig, isCustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
-import { LayoutElement } from './model/layout-element.interface';
 import { LayoutList } from './model/layout-list.interface';
 import { LayoutType } from './model/layout-type.enum';
 import { WINDOW_REF } from './model/window-ref.token';
@@ -16,7 +28,7 @@ import { WithoutHiddenPipe } from './without-hidden-pipe/without-hidden.pipe';
   templateUrl: './customizable-layout.component.html',
   styleUrls: ['./customizable-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, CommonModule, WithoutHiddenPipe],
+  imports: [DragDropModule, NgClass, NgStyle, NgComponentOutlet, WithoutHiddenPipe],
   providers: [
     {
       provide: WINDOW_REF,
@@ -28,7 +40,7 @@ export class CustomizableLayoutComponent implements OnInit {
   @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
   @Input() defaultLayout!: CustomizableLayoutConfig;
   // @Input() componentInjector!: Injector;
-  // @Input() componentMap!: ComponentMap;
+  @Input() componentMap!: ComponentMap;
   @Input() editing: boolean = false;
 
   @Input() desktopBreakpoint = 1024;
@@ -47,26 +59,39 @@ export class CustomizableLayoutComponent implements OnInit {
     }
   });
   layout = computed(() => {
-    const layout = this.getConnectedLists(this.currentLayout);
-    this.layoutChanged.next(layout);
-    return layout;
+    // const layout = this.getConnectedLists(this.currentLayout);
+    // this.layoutChanged.next(layout);
+    // return layout;
+    const lars = this._layoutState()?.[this._layoutType()];
+    return this.defaultLayout[LayoutType.Mobile]; // TODO: component map is required because components cant be instantiated from localstorage
   });
   templateColumns = computed(() => this.currentColumns);
+  innerWidth = signal(window.innerWidth);
 
-  constructor(@Inject(WINDOW_REF) private windowRef: Window) {}
+  constructor(@Inject(WINDOW_REF) private windowRef: Window) {
+    effect(
+      () => {
+        const width = this.windowRef.innerWidth;
+        if (width > this.desktopBreakpoint) {
+          this._layoutType.set(LayoutType.Desktop);
+        } else if (width > this.tabletBreakpoint) {
+          this._layoutType.set(LayoutType.Tablet);
+        } else {
+          this._layoutType.set(LayoutType.Mobile);
+        }
+      },
+      { allowSignalWrites: true },
+    );
+
+    // Update the innerWidth signal when the window is resized
+    this.windowRef.addEventListener('resize', () => {
+      this.innerWidth.set(this.windowRef.innerWidth);
+      console.log(this.layout());
+    });
+  }
 
   ngOnInit(): void {
     this.initializeState();
-    effect(() => {
-      const width = this.windowRef.innerWidth;
-      if (width > this.desktopBreakpoint) {
-        this._layoutType.set(LayoutType.Desktop);
-      } else if (width > this.tabletBreakpoint) {
-        this._layoutType.set(LayoutType.Tablet);
-      } else {
-        this._layoutType.set(LayoutType.Mobile);
-      }
-    });
   }
 
   initializeState() {
@@ -136,7 +161,7 @@ export class CustomizableLayoutComponent implements OnInit {
   resetPressed() {
     const defaultLayout = this.defaultLayout[this._layoutType()];
     if (defaultLayout) {
-      this.currentLayout = this.createCopy(this.getConnectedLists(defaultLayout));
+      this._layoutState = this.createCopy(this.getConnectedLists(defaultLayout));
     }
   }
 
@@ -195,4 +220,9 @@ export class CustomizableLayoutComponent implements OnInit {
   private createCopy(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
   }
+}
+
+export interface LayoutElement {
+  component: Type<any>;
+  // ...existing code...
 }

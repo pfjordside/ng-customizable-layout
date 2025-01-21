@@ -10,8 +10,8 @@ describe('CustomizableLayoutComponent', () => {
     providers: [
       {
         provide: WINDOW_REF,
-        useValue: window
-      }
+        useValue: window,
+      },
     ],
     component: CustomizableLayoutComponent,
     declarations: [MockComponents(CustomizableLayoutComponent)],

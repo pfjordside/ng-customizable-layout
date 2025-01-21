@@ -5,8 +5,10 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './demo.component.html',
-  styleUrl: './demo.component.scss'
+  styleUrl: './demo.component.scss',
 })
 export class DemoComponent {
-
+  constructor() {
+    console.log('DemoComponent created');
+  }
 }

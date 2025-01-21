@@ -1,14 +1,14 @@
+@if(layout(); as layout) {
 <div
   class="drag-container"
   id="drag-container"
-  *ngIf="layout(); let layout"
   [ngStyle]="{
     'grid-template-columns': templateColumns(),
     'grid-gap': layout.cardMargin
   }"
 >
+  @for (list of layout.lists; track listTrackBy) {
   <div
-    *ngFor="let list of layout.lists; trackBy: listTrackBy"
     cdkDropList
     [id]="list.containerName"
     [ngClass]="list.containerName"
@@ -18,8 +18,8 @@
     [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : []"
     [cdkDropListDisabled]="!editing"
   >
+    @for (e of list.items | withoutHidden; track cardTrackBy) {
     <div
-      *ngFor="let e of list.items | withoutHidden; trackBy: cardTrackBy"
       cdkDrag
       [cdkDragStartDelay]="dragDelay()"
       [ngClass]="{ editing: editing }"
@@ -30,5 +30,8 @@
     >
       <ng-template *ngComponentOutlet="e.component"></ng-template>
     </div>
+    }
   </div>
+  }
 </div>
+}

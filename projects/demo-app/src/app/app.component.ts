@@ -13,16 +13,29 @@ import { DemoComponent } from './demo/demo.component';
 })
 export class AppComponent {
   editing = signal(false);
+  demoComponent = DemoComponent;
   layoutConfig: CustomizableLayoutConfig = {
     version: 1,
     name: 'Demo Layout',
     [LayoutType.Mobile]: {
       cardMargin: '0.5rem',
-      lists: [],
+      lists: [
+        {
+          width: '1fr',
+          containerName: 'List 1',
+          items: [{ component: this.demoComponent }, { component: this.demoComponent }, { component: this.demoComponent }],
+        },
+      ],
     },
     [LayoutType.Tablet]: {
       cardMargin: '1rem',
-      lists: [],
+      lists: [
+        {
+          width: '1fr',
+          containerName: 'List 1',
+          items: [{ component: this.demoComponent }, { component: this.demoComponent }, { component: this.demoComponent }],
+        },
+      ],
     },
   };
 
@@ -40,7 +53,7 @@ export class AppComponent {
           {
             width: '1fr',
             containerName: 'List 1',
-            items: [{ component: DemoComponent }, { component: DemoComponent }, { component: DemoComponent }],
+            items: [{ component: this.demoComponent }, { component: this.demoComponent }, { component: this.demoComponent }],
           },
         ],
       },
@@ -50,12 +63,12 @@ export class AppComponent {
           {
             width: '1fr',
             containerName: 'List 1',
-            items: [{ component: DemoComponent }, { component: DemoComponent }, { component: DemoComponent }],
+            items: [{ component: this.demoComponent }, { component: this.demoComponent }, { component: this.demoComponent }],
           },
           {
             width: '2fr',
             containerName: 'List 2',
-            items: [{ component: DemoComponent }, { component: DemoComponent }, { component: DemoComponent }],
+            items: [{ component: this.demoComponent }, { component: this.demoComponent }, { component: this.demoComponent }],
           },
         ],
       },

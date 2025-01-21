@@ -2,6 +2,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
@@ -11,7 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
   templateUrl: './customizable-layout-menu.component.html',
   styleUrls: ['./customizable-layout-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, MatMenuModule, MatIconModule, CommonModule, FormsModule],
+  imports: [DragDropModule, MatMenuModule, MatIconModule, MatButtonModule, CommonModule, FormsModule],
 })
 export class CustomizableLayoutMenuComponent {
   @Output() removeColRightPressed = new EventEmitter<void>();
