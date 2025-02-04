@@ -1,9 +1,9 @@
-@if (layout$ | async; as layout) {
+@if(layout(); as layout) {
 <div
   class="drag-container"
   id="drag-container"
   [ngStyle]="{
-    'grid-template-columns': templateColumns$ | async,
+    'grid-template-columns': templateColumns(),
     'grid-gap': layout.cardMargin
   }"
 >
@@ -15,22 +15,20 @@
     [cdkDropListData]="list.items"
     [cdkDropListDisabled]="!editing"
     (cdkDropListDropped)="drop($event)"
-    [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : ''"
+    [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : []"
     [cdkDropListDisabled]="!editing"
   >
-    @for (e of list.items | withoutHidden:componentMap; track $index) {
+    @for (e of list.items | withoutHidden; track cardTrackBy) {
     <div
       cdkDrag
-      [cdkDragStartDelay]="(dragDelay$ | async) ?? 0"
+      [cdkDragStartDelay]="dragDelay()"
       [ngClass]="{ editing: editing }"
       [ngStyle]="{
         'margin-bottom': layout.cardMargin,
         cursor: editing ? 'grab' : 'default'
       }"
     >
-      <ng-template
-        *ngComponentOutlet="componentMap[e.componentName].component; injector: componentInjector"
-      ></ng-template>
+      <ng-template *ngComponentOutlet="e.component"></ng-template>
     </div>
     }
   </div>
