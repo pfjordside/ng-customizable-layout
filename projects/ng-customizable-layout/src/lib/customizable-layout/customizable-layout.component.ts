@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { NgClass, NgComponentOutlet, NgStyle } from '@angular/common';
+import { NgClass, NgStyle, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,19 +7,21 @@ import {
   effect,
   EventEmitter,
   Inject,
+  input,
   Input,
-  OnInit,
   Output,
   signal,
-  Type,
+  TemplateRef,
 } from '@angular/core';
 import { createGuid } from '../utils/create-guid.fn';
+import { LayoutElement } from './model';
 import { CustomizableLayoutConfig, isCustomizableLayoutConfig } from './model/customizable-layout-config.interface';
 import { CustomizableLayout } from './model/customizable-layout.interface';
 import { LayoutList } from './model/layout-list.interface';
 import { LayoutType } from './model/layout-type.enum';
+import { TemplateMap } from './model/template-map.interface';
 import { WINDOW_REF } from './model/window-ref.token';
-import { WithoutHiddenPipe } from './without-hidden-pipe/without-hidden.pipe';
+import { GetTemplateRefPipe, WithoutHiddenPipe } from './pipes';
 
 @Component({
   standalone: true,
@@ -27,7 +29,7 @@ import { WithoutHiddenPipe } from './without-hidden-pipe/without-hidden.pipe';
   templateUrl: './customizable-layout.component.html',
   styleUrls: ['./customizable-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, NgClass, NgStyle, NgComponentOutlet, WithoutHiddenPipe],
+  imports: [DragDropModule, NgClass, NgStyle, NgTemplateOutlet, WithoutHiddenPipe, GetTemplateRefPipe],
   providers: [
     {
       provide: WINDOW_REF,
@@ -35,12 +37,14 @@ import { WithoutHiddenPipe } from './without-hidden-pipe/without-hidden.pipe';
     },
   ],
 })
-export class CustomizableLayoutComponent implements OnInit {
+export class CustomizableLayoutComponent {
+  layoutConfig = input<CustomizableLayoutConfig>();
+  templates = input<TemplateRef<unknown>[]>();
   @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
-  @Input() defaultLayout!: CustomizableLayoutConfig;
-  // @Input() componentInjector!: Injector;
-  // @Input() componentMap!: ComponentMap;
+  @Input() templateMap!: TemplateMap;
   @Input() editing: boolean = false;
+
+  layoutType = LayoutType;
 
   @Input() desktopBreakpoint = 1024;
   @Input() tabletBreakpoint = 990;
@@ -58,11 +62,9 @@ export class CustomizableLayoutComponent implements OnInit {
     }
   });
   layout = computed(() => {
-    // const layout = this.getConnectedLists(this.currentLayout);
-    // this.layoutChanged.next(layout);
-    // return layout;
-    const lars = this._layoutState()?.[this._layoutType()];
-    return this.defaultLayout[LayoutType.Mobile]; // TODO: component map is required because components cant be instantiated from localstorage
+    const layout = this.getConnectedLists(this.currentLayout);
+    this.layoutChanged.next(layout);
+    return layout;
   });
   templateColumns = computed(() => this.currentColumns);
   innerWidth = signal(window.innerWidth);
@@ -70,7 +72,15 @@ export class CustomizableLayoutComponent implements OnInit {
   constructor(@Inject(WINDOW_REF) private windowRef: Window) {
     effect(
       () => {
-        const width = this.windowRef.innerWidth;
+        const layoutConfig = this.templates();
+        console.log(layoutConfig);
+      },
+      { allowSignalWrites: true },
+    );
+    effect(
+      () => {
+        const width = this.innerWidth();
+        console.log(this.templateMap);
         if (width > this.desktopBreakpoint) {
           this._layoutType.set(LayoutType.Desktop);
         } else if (width > this.tabletBreakpoint) {
@@ -81,28 +91,21 @@ export class CustomizableLayoutComponent implements OnInit {
       },
       { allowSignalWrites: true },
     );
-
     // Update the innerWidth signal when the window is resized
     this.windowRef.addEventListener('resize', () => {
       this.innerWidth.set(this.windowRef.innerWidth);
-      console.log(this.layout());
     });
   }
 
-  ngOnInit(): void {
-    this.initializeState();
-  }
-
-  initializeState() {
-    let storedLayout = this.windowRef.localStorage.getItem(this.defaultLayout.name);
-    if (
-      storedLayout &&
-      isCustomizableLayoutConfig(storedLayout) &&
-      this.defaultLayout.version <= storedLayout.version
-    ) {
-      this._layoutState.set(storedLayout);
-    } else {
-      this._layoutState.set(this.createCopy(this.defaultLayout));
+  initializeState(layoutConfig?: CustomizableLayoutConfig) {
+    if (!this._layoutState()) {
+      let storedLayout = this.windowRef.localStorage.getItem(this.layoutConfig.name);
+      const currentVersion = this.layoutConfig()?.version ?? 0;
+      if (storedLayout && isCustomizableLayoutConfig(storedLayout) && currentVersion <= storedLayout.version) {
+        this._layoutState.set(storedLayout);
+      } else {
+        this._layoutState.set(this.createCopy(this.layoutConfig));
+      }
     }
   }
 
@@ -162,14 +165,14 @@ export class CustomizableLayoutComponent implements OnInit {
   }
 
   resetPressed() {
-    const defaultLayout = this.defaultLayout[this._layoutType()];
+    const defaultLayout = this.layoutConfig()?.[this._layoutType()];
     if (defaultLayout) {
       this._layoutState = this.createCopy(this.getConnectedLists(defaultLayout));
     }
   }
 
   cardTrackBy(index: number, name: LayoutElement): string {
-    return name.component.name;
+    return name.templateName + Math.random().toString();
   }
 
   listTrackBy(index: number, list: LayoutList): string {
@@ -221,11 +224,9 @@ export class CustomizableLayoutComponent implements OnInit {
   }
 
   private createCopy(obj: any): any {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
     return JSON.parse(JSON.stringify(obj));
   }
-}
-
-export interface LayoutElement {
-  component: Type<any>;
-  // ...existing code...
 }

@@ -1,4 +1,4 @@
-@if(layout(); as layout) {
+@if(layoutConfig()?.[layoutType.Tablet]; as layout) {
 <div
   class="drag-container"
   id="drag-container"
@@ -18,7 +18,7 @@
     [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : []"
     [cdkDropListDisabled]="!editing"
   >
-    @for (e of list.items | withoutHidden; track cardTrackBy) {
+    @for (item of list.items | withoutHidden; track cardTrackBy) {
     <div
       cdkDrag
       [cdkDragStartDelay]="dragDelay()"
@@ -28,7 +28,7 @@
         cursor: editing ? 'grab' : 'default'
       }"
     >
-      <ng-template *ngComponentOutlet="e.component"></ng-template>
+      <ng-container *ngTemplateOutlet="item.templateName | getTemplateRef : templateMap"></ng-container>
     </div>
     }
   </div>

@@ -1,4 +1,4 @@
 export interface LayoutElement {
-  componentName: string;
+  templateName: string;
   hidden?: boolean;
 }

@@ -12,9 +12,7 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "paths": {
-      "ng-customizable-layout": [
-        "./dist/ng-customizable-layout"
-      ]
+      "ng-customizable-layout": ["./dist/ng-customizable-layout"]
     },
     "esModuleInterop": true,
     "sourceMap": true,
@@ -24,10 +22,7 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "lib": ["ES2022", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
