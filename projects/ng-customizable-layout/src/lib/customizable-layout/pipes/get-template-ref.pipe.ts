@@ -6,7 +6,7 @@ import { TemplateMap } from '../model/template-map.interface';
   standalone: true,
 })
 export class GetTemplateRefPipe implements PipeTransform {
-  transform(templateName: string, templateMap: TemplateMap) {
+  transform(templateName: string, templateMap?: TemplateMap) {
     return templateMap?.[templateName];
   }
 }

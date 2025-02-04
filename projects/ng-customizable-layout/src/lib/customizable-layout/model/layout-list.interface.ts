@@ -1,7 +1,7 @@
-import { LayoutElement } from "./layout-element.interface";
+import { LayoutElement } from './layout-element.interface';
 
 export interface LayoutList {
-  containerName: string;
+  containerName: string; // Must be unique
   connectedTo?: string[];
   items: LayoutElement[];
   width: string;

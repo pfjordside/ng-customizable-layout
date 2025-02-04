@@ -1,18 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { NgClass, NgStyle, NgTemplateOutlet } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  EventEmitter,
-  Inject,
-  input,
-  Input,
-  Output,
-  signal,
-  TemplateRef,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, Inject, input, output, signal } from '@angular/core';
 import { createGuid } from '../utils/create-guid.fn';
 import { LayoutElement } from './model';
 import { CustomizableLayoutConfig, isCustomizableLayoutConfig } from './model/customizable-layout-config.interface';
@@ -38,21 +26,16 @@ import { GetTemplateRefPipe, WithoutHiddenPipe } from './pipes';
   ],
 })
 export class CustomizableLayoutComponent {
+  layoutChanged = output<CustomizableLayout>();
   layoutConfig = input<CustomizableLayoutConfig>();
-  templates = input<TemplateRef<unknown>[]>();
-  @Output() layoutChanged = new EventEmitter<CustomizableLayout>();
-  @Input() templateMap!: TemplateMap;
-  @Input() editing: boolean = false;
+  templateMap = input<TemplateMap>();
+  editing = input(false);
 
-  layoutType = LayoutType;
+  desktopBreakpoint = input(1024);
+  tabletBreakpoint = input(990);
+  mobileBreakpoint = input(420);
 
-  @Input() desktopBreakpoint = 1024;
-  @Input() tabletBreakpoint = 990;
-  @Input() mobileBreakpoint = 420;
-
-  private _layoutState = signal<CustomizableLayoutConfig | null>(null);
-  private _layoutType = signal<LayoutType>(LayoutType.Mobile); // Mobile first <3
-
+  templateColumns = computed(() => this.currentColumns);
   dragDelay = computed(() => {
     switch (this._layoutType()) {
       case LayoutType.Mobile:
@@ -61,29 +44,30 @@ export class CustomizableLayoutComponent {
         return 0;
     }
   });
-  layout = computed(() => {
-    const layout = this.getConnectedLists(this.currentLayout);
-    this.layoutChanged.next(layout);
-    return layout;
+  currentLayout = computed(() => {
+    return this._layoutState()?.[this._layoutType()] as CustomizableLayout;
   });
-  templateColumns = computed(() => this.currentColumns);
-  innerWidth = signal(window.innerWidth);
+
+  private _innerWidth = signal(window.innerWidth);
+  private _layoutState = signal<CustomizableLayoutConfig | null>(null);
+  private _layoutType = signal<LayoutType>(LayoutType.Mobile); // Mobile first <3
 
   constructor(@Inject(WINDOW_REF) private windowRef: Window) {
     effect(
       () => {
-        const layoutConfig = this.templates();
-        console.log(layoutConfig);
+        const layoutConfig = this.layoutConfig();
+        if (layoutConfig) {
+          this.initializeState(layoutConfig);
+        }
       },
       { allowSignalWrites: true },
     );
     effect(
       () => {
-        const width = this.innerWidth();
-        console.log(this.templateMap);
-        if (width > this.desktopBreakpoint) {
+        const width = this._innerWidth();
+        if (width > this.desktopBreakpoint() && !!this.layoutConfig()?.[LayoutType.Desktop]) {
           this._layoutType.set(LayoutType.Desktop);
-        } else if (width > this.tabletBreakpoint) {
+        } else if (width > this.tabletBreakpoint() && !!this.layoutConfig()?.[LayoutType.Tablet]) {
           this._layoutType.set(LayoutType.Tablet);
         } else {
           this._layoutType.set(LayoutType.Mobile);
@@ -93,24 +77,24 @@ export class CustomizableLayoutComponent {
     );
     // Update the innerWidth signal when the window is resized
     this.windowRef.addEventListener('resize', () => {
-      this.innerWidth.set(this.windowRef.innerWidth);
+      this._innerWidth.set(this.windowRef.innerWidth);
     });
   }
 
-  initializeState(layoutConfig?: CustomizableLayoutConfig) {
-    if (!this._layoutState()) {
-      let storedLayout = this.windowRef.localStorage.getItem(this.layoutConfig.name);
-      const currentVersion = this.layoutConfig()?.version ?? 0;
-      if (storedLayout && isCustomizableLayoutConfig(storedLayout) && currentVersion <= storedLayout.version) {
-        this._layoutState.set(storedLayout);
-      } else {
-        this._layoutState.set(this.createCopy(this.layoutConfig));
-      }
+  initializeState(layoutConfig: CustomizableLayoutConfig) {
+    let storedLayout = this.windowRef.localStorage.getItem(layoutConfig.name);
+    if (!storedLayout) {
+      this._layoutState.set(layoutConfig);
+      return;
+    }
+    storedLayout = JSON.parse(storedLayout);
+    if (storedLayout && isCustomizableLayoutConfig(storedLayout) && layoutConfig.version <= storedLayout.version) {
+      this._layoutState.set(storedLayout);
     }
   }
 
   drop(event: CdkDragDrop<LayoutElement[]>) {
-    let layout = this.currentLayout;
+    let layout = this.currentLayout();
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       const index = layout.lists.map((l) => l.containerName).indexOf(event.container.id);
@@ -122,79 +106,49 @@ export class CustomizableLayoutComponent {
       layout.lists[prevListIndex].items = [...event.previousContainer.data];
       layout.lists[currListIndex].items = [...event.container.data];
     }
-    this.currentLayout = { ...layout };
+    this.updateCurrentLayout({ ...layout });
   }
 
   addColumnRightPressed() {
-    this.currentLayout = {
-      ...this.currentLayout,
-      lists: [...this.currentLayout.lists, this.getEmptyList()],
-    };
-    this.updateLayout();
+    this.updateCurrentLayout({
+      ...this.currentLayout(),
+      lists: [...this.currentLayout().lists, this.getEmptyList()],
+    });
   }
 
   addColumnLeftPressed() {
-    this.currentLayout = {
-      ...this.currentLayout,
-      lists: [this.getEmptyList(), ...this.currentLayout.lists],
-    };
-    this.updateLayout();
+    this.updateCurrentLayout({
+      ...this.currentLayout(),
+      lists: [this.getEmptyList(), ...this.currentLayout().lists],
+    });
   }
 
   removeColumnLeftPressed() {
-    let spillOver = this.currentLayout.lists[0].items;
-    let lists = this.currentLayout.lists.slice(1);
+    let spillOver = this.currentLayout().lists[0].items;
+    let lists = this.currentLayout().lists.slice(1);
     lists[0].items.push(...spillOver);
-    this.currentLayout = {
-      ...this.currentLayout,
+    this.updateCurrentLayout({
+      ...this.currentLayout(),
       lists,
-    };
-    this.updateLayout();
+    });
   }
 
   removeColumnRightPressed() {
-    let lists = this.currentLayout.lists;
+    let lists = this.currentLayout().lists;
     let spillOver = lists[lists.length - 1].items;
     const removedList = lists.pop();
     lists[lists.length - 1].items.push(...spillOver);
-    this.currentLayout = {
-      ...this.currentLayout,
+    this.updateCurrentLayout({
+      ...this.currentLayout(),
       lists,
-    };
-    this.updateLayout();
+    });
   }
 
   resetPressed() {
     const defaultLayout = this.layoutConfig()?.[this._layoutType()];
     if (defaultLayout) {
-      this._layoutState = this.createCopy(this.getConnectedLists(defaultLayout));
+      this.updateCurrentLayout(defaultLayout);
     }
-  }
-
-  cardTrackBy(index: number, name: LayoutElement): string {
-    return name.templateName + Math.random().toString();
-  }
-
-  listTrackBy(index: number, list: LayoutList): string {
-    return list.containerName;
-  }
-
-  private updateLayout() {
-    this.currentLayout = this.getConnectedLists(this.currentLayout);
-  }
-
-  private getConnectedLists(layout: CustomizableLayout): CustomizableLayout {
-    return {
-      ...layout,
-      lists: layout?.lists.map((l) => ({
-        ...l,
-        connectedTo: this.getConnectedToString(l.containerName),
-      })),
-    };
-  }
-
-  private getConnectedToString(self: string): string[] {
-    return this.currentLayout.lists.map((l) => l.containerName).filter((cn) => cn !== self);
   }
 
   private getEmptyList(): LayoutList {
@@ -207,26 +161,17 @@ export class CustomizableLayoutComponent {
   }
 
   private get currentColumns() {
-    return this.currentLayout?.lists.map((l) => l.width).reduce((cur, prev) => cur + ' ' + prev, '');
+    return this.currentLayout()
+      ?.lists?.map((l) => l.width)
+      .reduce((cur, prev) => cur + ' ' + prev, '');
   }
 
-  private get currentLayout() {
-    return this._layoutState()?.[this._layoutType()] as CustomizableLayout;
-  }
-
-  private set currentLayout(newVal: CustomizableLayout) {
+  private updateCurrentLayout(newVal: CustomizableLayout) {
     const updatedLayout = {
       ...this._layoutState(),
       [this._layoutType()]: newVal,
     } as CustomizableLayoutConfig;
     this._layoutState.set(updatedLayout);
     this.windowRef.localStorage.setItem(updatedLayout.name, JSON.stringify(updatedLayout));
-  }
-
-  private createCopy(obj: any): any {
-    if (obj === null || typeof obj !== 'object') {
-      return obj;
-    }
-    return JSON.parse(JSON.stringify(obj));
   }
 }

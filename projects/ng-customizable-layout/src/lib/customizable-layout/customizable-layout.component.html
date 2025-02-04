@@ -1,34 +1,37 @@
-@if(layoutConfig()?.[layoutType.Tablet]; as layout) {
+@if(currentLayout(); as layout) {
 <div
+  cdkDropListGroup
   class="drag-container"
   id="drag-container"
   [ngStyle]="{
     'grid-template-columns': templateColumns(),
-    'grid-gap': layout.cardMargin
+    gap: layout.cardMargin
   }"
 >
-  @for (list of layout.lists; track listTrackBy) {
+  @for (list of layout.lists; track list.containerName) {
   <div
     cdkDropList
+    class="drag-list"
     [id]="list.containerName"
     [ngClass]="list.containerName"
     [cdkDropListData]="list.items"
-    [cdkDropListDisabled]="!editing"
+    [cdkDropListDisabled]="!editing()"
     (cdkDropListDropped)="drop($event)"
-    [cdkDropListConnectedTo]="list.connectedTo ? list.connectedTo : []"
-    [cdkDropListDisabled]="!editing"
   >
-    @for (item of list.items | withoutHidden; track cardTrackBy) {
+    @for (item of list.items | withoutHidden; track item.id) {
     <div
       cdkDrag
+      class="drag-item"
       [cdkDragStartDelay]="dragDelay()"
-      [ngClass]="{ editing: editing }"
+      [ngClass]="{ editing: editing() }"
       [ngStyle]="{
         'margin-bottom': layout.cardMargin,
-        cursor: editing ? 'grab' : 'default'
+        cursor: editing() ? 'grab' : 'default'
       }"
     >
-      <ng-container *ngTemplateOutlet="item.templateName | getTemplateRef : templateMap"></ng-container>
+      @if (item.templateName | getTemplateRef : templateMap(); as templateRef) {
+      <ng-container *ngTemplateOutlet="templateRef"></ng-container>
+      }
     </div>
     }
   </div>

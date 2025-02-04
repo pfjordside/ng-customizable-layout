@@ -24,7 +24,11 @@ export class AppComponent {
         {
           width: '1fr',
           containerName: 'List 1',
-          items: [{ templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }],
+          items: [
+            { templateName: 'cardTemplate', id: '1' },
+            { templateName: 'otherCardTemplate', id: '2' },
+            { templateName: 'cardTemplate', id: '3' },
+          ],
         },
       ],
     },
@@ -34,12 +38,20 @@ export class AppComponent {
         {
           width: '1fr',
           containerName: 'List 1',
-          items: [{ templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }],
+          items: [
+            { templateName: 'cardTemplate', id: '1' },
+            { templateName: 'otherCardTemplate', id: '2' },
+            { templateName: 'cardTemplate', id: '3' },
+          ],
         },
         {
           width: '2fr',
           containerName: 'List 2',
-          items: [{ templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }],
+          items: [
+            { templateName: 'cardTemplate', id: '4' },
+            { templateName: 'otherCardTemplate', id: '5' },
+            { templateName: 'cardTemplate', id: '6' },
+          ],
         },
       ],
     },
