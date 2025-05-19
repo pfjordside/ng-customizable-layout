@@ -1,24 +1,71 @@
-# NgCustomizableLayout
+# CustomizableLayoutComponent 🧱
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
+A standalone Angular component for building customizable, drag-and-drop layouts. Part of the [ng-customizable-layout](../../README.md) library.
 
-## Code scaffolding
+## ✨ Features
 
-Run `ng generate component component-name --project ng-customizable-layout` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ng-customizable-layout`.
-> Note: Don't forget to add `--project ng-customizable-layout` or else it will be added to the default project in your `angular.json` file. 
+- 🖱️ Drag-and-drop cards between columns
+- 📱 Responsive breakpoints (Desktop, Tablet, Mobile)
+- 💾 User-editable layout with persistent storage
+- 🎨 Easy integration with Angular Material
 
-## Build
+## 🚀 Quick Start
 
-Run `ng build ng-customizable-layout` to build the project. The build artifacts will be stored in the `dist/` directory.
+1. **Import the component**
+   ```typescript
+   import { CustomizableLayoutComponent } from 'ng-customizable-layout';
+   ```
+2. **Add to your template**
+   ```html
+   <ng-customizable-layout
+     [layoutConfig]="layoutConfig"
+     [templateMap]="{ cardTemplate, otherCardTemplate }"
+     [editing]="editing()"
+   ></ng-customizable-layout>
+   ```
+3. **Provide a layout config**
 
-## Publishing
+   ```typescript
+   import { CustomizableLayoutConfig, LayoutType } from 'ng-customizable-layout';
 
-After building your library with `ng build ng-customizable-layout`, go to the dist folder `cd dist/ng-customizable-layout` and run `npm publish`.
+   layoutConfig: CustomizableLayoutConfig = {
+     version: 1,
+     name: 'Demo Layout',
+     [LayoutType.Mobile]: { ... },
+     [LayoutType.Tablet]: { ... },
+     [LayoutType.Desktop]: { ... },
+   };
+   ```
 
-## Running unit tests
+4. **Provide templates for your cards**
+   ```html
+   <ng-template #cardTemplate>
+     <mat-card>
+       <mat-card-header>
+         <mat-card-title>Drag me! 🚚</mat-card-title>
+       </mat-card-header>
+       <mat-card-content>
+         <!-- Card content here -->
+       </mat-card-content>
+     </mat-card>
+   </ng-template>
+   ```
 
-Run `ng test ng-customizable-layout` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## 🛠️ Inputs
 
-## Further help
+- `layoutConfig`: The layout configuration object
+- `templateMap`: A map of template references for card types
+- `editing`: Boolean, enables editing mode
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📤 Outputs
+
+- `layoutChanged`: Emits when the layout changes
+
+## 🔗 See Also
+
+- [CustomizableLayoutMenuComponent](../customizable-layout-menu/)
+- [Demo app](../../../demo-app/)
+
+---
+
+MIT License ©️
