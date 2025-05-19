@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "paths": {
-      "ng-customizable-layout": ["./dist/ng-customizable-layout"]
+      "ng-customizable-layout": ["./projects/ng-customizable-layout/src/public-api.ts"]
     },
     "esModuleInterop": true,
     "sourceMap": true,
