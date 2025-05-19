@@ -174,4 +174,9 @@ export class CustomizableLayoutComponent {
     this._layoutState.set(updatedLayout);
     this.windowRef.localStorage.setItem(updatedLayout.name, JSON.stringify(updatedLayout));
   }
+
+  cardTrackBy(index: number, item: LayoutElement): string {
+    // Use a combination of templateName and index for uniqueness
+    return `${item.templateName}-${index}`;
+  }
 }

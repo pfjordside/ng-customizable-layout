@@ -25,9 +25,9 @@ export class AppComponent {
           width: '1fr',
           containerName: 'List 1',
           items: [
-            { templateName: 'cardTemplate', id: '1' },
-            { templateName: 'otherCardTemplate', id: '2' },
-            { templateName: 'cardTemplate', id: '3' },
+            { templateName: 'cardTemplate' },
+            { templateName: 'otherCardTemplate' },
+            { templateName: 'cardTemplate' },
           ],
         },
       ],
@@ -39,18 +39,18 @@ export class AppComponent {
           width: '1fr',
           containerName: 'List 1',
           items: [
-            { templateName: 'cardTemplate', id: '1' },
-            { templateName: 'otherCardTemplate', id: '2' },
-            { templateName: 'cardTemplate', id: '3' },
+            { templateName: 'cardTemplate' },
+            { templateName: 'otherCardTemplate' },
+            { templateName: 'cardTemplate' },
           ],
         },
         {
           width: '2fr',
           containerName: 'List 2',
           items: [
-            { templateName: 'cardTemplate', id: '4' },
-            { templateName: 'otherCardTemplate', id: '5' },
-            { templateName: 'cardTemplate', id: '6' },
+            { templateName: 'cardTemplate' },
+            { templateName: 'otherCardTemplate' },
+            { templateName: 'cardTemplate' },
           ],
         },
       ],
@@ -61,26 +61,17 @@ export class AppComponent {
         {
           width: '1fr',
           containerName: 'List 1',
-          items: [
-            { templateName: 'cardTemplate', id: '1' },
-            { templateName: 'cardTemplate', id: '3' },
-          ],
+          items: [{ templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }],
         },
         {
           width: '2fr',
           containerName: 'List 2',
-          items: [
-            { templateName: 'otherCardTemplate', id: '5' },
-            { templateName: 'otherCardTemplate', id: '7' },
-          ],
+          items: [{ templateName: 'otherCardTemplate' }, { templateName: 'otherCardTemplate' }],
         },
         {
           width: '1fr',
           containerName: 'List 3',
-          items: [
-            { templateName: 'cardTemplate', id: '8' },
-            { templateName: 'cardTemplate', id: '9' },
-          ],
+          items: [{ templateName: 'cardTemplate' }, { templateName: 'cardTemplate' }],
         },
       ],
     },

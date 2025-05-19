@@ -18,7 +18,7 @@
     [cdkDropListDisabled]="!editing()"
     (cdkDropListDropped)="drop($event)"
   >
-    @for (item of list.items | withoutHidden; track item.id) {
+    @for (item of list.items | withoutHidden; track cardTrackBy($index, item)) {
     <div
       cdkDrag
       class="drag-item"
