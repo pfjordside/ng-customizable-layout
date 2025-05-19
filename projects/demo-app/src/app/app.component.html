@@ -1,10 +1,3 @@
-<ng-customizable-layout
-  #layout
-  [layoutConfig]="layoutConfig"
-  [templateMap]="{ cardTemplate, otherCardTemplate }"
-  [editing]="editing()"
->
-</ng-customizable-layout>
 <ng-customizable-layout-menu
   [editingLayout]="editing()"
   (editPressed)="editPressed()"
@@ -15,26 +8,39 @@
   (removeColLeftPressed)="layout.removeColumnLeftPressed()"
 >
 </ng-customizable-layout-menu>
+<ng-customizable-layout
+  #layout
+  [layoutConfig]="layoutConfig"
+  [templateMap]="{ cardTemplate, otherCardTemplate }"
+  [editing]="editing()"
+>
+</ng-customizable-layout>
 
 <ng-template #cardTemplate>
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Some title</mat-card-title>
-      <mat-card-subtitle>Some subtitle</mat-card-subtitle>
+      <mat-card-title>Drag me!</mat-card-title>
+      <mat-card-subtitle>If you want ofc</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p>Some interesting content</p>
+      <img
+        src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fih1.redbubble.net%2Fimage.1615061309.6202%2Fraf%2C750x1000%2C075%2Ct%2C101010%3A01c5ca27c6.jpg&f=1&nofb=1&ipt=3b71fdb9057d188750e2a69f7adb065919ec65e669a26641791d16f4339dd84d"
+        alt="Cat with thumbs up meme"
+      />
     </mat-card-content>
   </mat-card>
 </ng-template>
 <ng-template #otherCardTemplate>
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Some other title</mat-card-title>
-      <mat-card-subtitle>Some other subtitle</mat-card-subtitle>
+      <mat-card-title>Drag me too!</mat-card-title>
+      <mat-card-subtitle>To a new position</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p>Some other interesting content</p>
+      <img
+        src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.kym-cdn.com%2Fentries%2Ficons%2Foriginal%2F000%2F012%2F982%2F039.jpg&f=1&nofb=1&ipt=adc0261f986948dbb444cd37ecf5d877c7eb1dc71bbec40f667a12dfff21aeab"
+        alt="Thumbs up meme"
+      />
     </mat-card-content>
   </mat-card>
 </ng-template>

@@ -55,6 +55,35 @@ export class AppComponent {
         },
       ],
     },
+    [LayoutType.Desktop]: {
+      cardMargin: '1rem',
+      lists: [
+        {
+          width: '1fr',
+          containerName: 'List 1',
+          items: [
+            { templateName: 'cardTemplate', id: '1' },
+            { templateName: 'cardTemplate', id: '3' },
+          ],
+        },
+        {
+          width: '2fr',
+          containerName: 'List 2',
+          items: [
+            { templateName: 'otherCardTemplate', id: '5' },
+            { templateName: 'otherCardTemplate', id: '7' },
+          ],
+        },
+        {
+          width: '1fr',
+          containerName: 'List 3',
+          items: [
+            { templateName: 'cardTemplate', id: '8' },
+            { templateName: 'cardTemplate', id: '9' },
+          ],
+        },
+      ],
+    },
   };
 
   editPressed() {
