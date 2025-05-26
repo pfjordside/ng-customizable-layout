@@ -12,17 +12,17 @@ import { WINDOW_REF } from './model/window-ref.token';
 import { GetTemplateRefPipe, WithoutHiddenPipe } from './pipes';
 
 @Component({
-    selector: 'ng-customizable-layout',
-    templateUrl: './customizable-layout.component.html',
-    styleUrls: ['./customizable-layout.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [DragDropModule, NgClass, NgStyle, NgTemplateOutlet, WithoutHiddenPipe, GetTemplateRefPipe],
-    providers: [
-        {
-            provide: WINDOW_REF,
-            useValue: window,
-        },
-    ]
+  selector: 'ng-customizable-layout',
+  templateUrl: './customizable-layout.component.html',
+  styleUrls: ['./customizable-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DragDropModule, NgClass, NgStyle, NgTemplateOutlet, WithoutHiddenPipe, GetTemplateRefPipe],
+  providers: [
+    {
+      provide: WINDOW_REF,
+      useValue: window,
+    },
+  ],
 })
 export class CustomizableLayoutComponent {
   layoutChanged = output<CustomizableLayout>();
@@ -52,28 +52,22 @@ export class CustomizableLayoutComponent {
   private _layoutType = signal<LayoutType>(LayoutType.Mobile); // Mobile first <3
 
   constructor(@Inject(WINDOW_REF) private windowRef: Window) {
-    effect(
-      () => {
-        const layoutConfig = this.layoutConfig();
-        if (layoutConfig) {
-          this.initializeState(layoutConfig);
-        }
-      },
-      { allowSignalWrites: true },
-    );
-    effect(
-      () => {
-        const width = this._innerWidth();
-        if (width > this.desktopBreakpoint() && !!this.layoutConfig()?.[LayoutType.Desktop]) {
-          this._layoutType.set(LayoutType.Desktop);
-        } else if (width > this.tabletBreakpoint() && !!this.layoutConfig()?.[LayoutType.Tablet]) {
-          this._layoutType.set(LayoutType.Tablet);
-        } else {
-          this._layoutType.set(LayoutType.Mobile);
-        }
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      const layoutConfig = this.layoutConfig();
+      if (layoutConfig) {
+        this.initializeState(layoutConfig);
+      }
+    });
+    effect(() => {
+      const width = this._innerWidth();
+      if (width > this.desktopBreakpoint() && !!this.layoutConfig()?.[LayoutType.Desktop]) {
+        this._layoutType.set(LayoutType.Desktop);
+      } else if (width > this.tabletBreakpoint() && !!this.layoutConfig()?.[LayoutType.Tablet]) {
+        this._layoutType.set(LayoutType.Tablet);
+      } else {
+        this._layoutType.set(LayoutType.Mobile);
+      }
+    });
     // Update the innerWidth signal when the window is resized
     this.windowRef.addEventListener('resize', () => {
       this._innerWidth.set(this.windowRef.innerWidth);
