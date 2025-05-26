@@ -1,18 +1,17 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
-  standalone: true,
   selector: 'ng-customizable-layout-menu',
   templateUrl: './customizable-layout-menu.component.html',
   styleUrls: ['./customizable-layout-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, MatMenuModule, MatIconModule, MatButtonModule, CommonModule, FormsModule],
+  imports: [NgClass, DragDropModule, MatMenu, MatMenuItem, MatMenuTrigger, MatIcon, FormsModule, MatIconButton],
 })
 export class CustomizableLayoutMenuComponent {
   @Output() removeColRightPressed = new EventEmitter<void>();

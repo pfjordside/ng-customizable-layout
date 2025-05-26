@@ -7,11 +7,10 @@ import {
   LayoutType,
 } from 'ng-customizable-layout';
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [CustomizableLayoutComponent, CustomizableLayoutMenuComponent, MatCardModule],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+    selector: 'app-root',
+    imports: [CustomizableLayoutComponent, CustomizableLayoutMenuComponent, MatCardModule],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   editing = signal(false);

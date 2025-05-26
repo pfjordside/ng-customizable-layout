@@ -12,10 +12,13 @@ A standalone Angular component for building customizable, drag-and-drop layouts.
 ## 🚀 Quick Start
 
 1. **Import the component**
+
    ```typescript
    import { CustomizableLayoutComponent } from 'ng-customizable-layout';
    ```
+
 2. **Add to your template**
+
    ```html
    <ng-customizable-layout
      [layoutConfig]="layoutConfig"
@@ -23,6 +26,7 @@ A standalone Angular component for building customizable, drag-and-drop layouts.
      [editing]="editing()"
    ></ng-customizable-layout>
    ```
+
 3. **Provide a layout config**
 
    ```typescript
@@ -38,6 +42,7 @@ A standalone Angular component for building customizable, drag-and-drop layouts.
    ```
 
 4. **Provide templates for your cards**
+
    ```html
    <ng-template #cardTemplate>
      <mat-card>

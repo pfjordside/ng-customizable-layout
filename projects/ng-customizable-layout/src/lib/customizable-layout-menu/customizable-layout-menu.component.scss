@@ -1,10 +1,14 @@
 div.actions {
+  --color-primary: #007bff;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
   display: flex;
   align-items: center;
   button {
     &.editing {
       .mat-icon {
-        color: var(--color-primary); 
+        color: var(--color-primary);
       }
     }
     &:last-child {

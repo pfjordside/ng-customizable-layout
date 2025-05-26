@@ -1,13 +1,17 @@
-<ng-customizable-layout-menu
-  [editingLayout]="editing()"
-  (editPressed)="editPressed()"
-  (resetPressed)="layout.resetPressed()"
-  (addColRightPressed)="layout.addColumnRightPressed()"
-  (addColLeftPressed)="layout.addColumnLeftPressed()"
-  (removeColRightPressed)="layout.removeColumnRightPressed()"
-  (removeColLeftPressed)="layout.removeColumnLeftPressed()"
->
-</ng-customizable-layout-menu>
+<div class="header">
+  <h1>Ng Customizable Layout Demo</h1>
+  <ng-customizable-layout-menu
+    [editingLayout]="editing()"
+    (editPressed)="editPressed()"
+    (resetPressed)="layout.resetPressed()"
+    (addColRightPressed)="layout.addColumnRightPressed()"
+    (addColLeftPressed)="layout.addColumnLeftPressed()"
+    (removeColRightPressed)="layout.removeColumnRightPressed()"
+    (removeColLeftPressed)="layout.removeColumnLeftPressed()"
+  >
+  </ng-customizable-layout-menu>
+</div>
+
 <ng-customizable-layout
   #layout
   [layoutConfig]="layoutConfig"

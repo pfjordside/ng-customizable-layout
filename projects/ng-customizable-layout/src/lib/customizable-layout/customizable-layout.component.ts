@@ -12,18 +12,17 @@ import { WINDOW_REF } from './model/window-ref.token';
 import { GetTemplateRefPipe, WithoutHiddenPipe } from './pipes';
 
 @Component({
-  standalone: true,
-  selector: 'ng-customizable-layout',
-  templateUrl: './customizable-layout.component.html',
-  styleUrls: ['./customizable-layout.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DragDropModule, NgClass, NgStyle, NgTemplateOutlet, WithoutHiddenPipe, GetTemplateRefPipe],
-  providers: [
-    {
-      provide: WINDOW_REF,
-      useValue: window,
-    },
-  ],
+    selector: 'ng-customizable-layout',
+    templateUrl: './customizable-layout.component.html',
+    styleUrls: ['./customizable-layout.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [DragDropModule, NgClass, NgStyle, NgTemplateOutlet, WithoutHiddenPipe, GetTemplateRefPipe],
+    providers: [
+        {
+            provide: WINDOW_REF,
+            useValue: window,
+        },
+    ]
 })
 export class CustomizableLayoutComponent {
   layoutChanged = output<CustomizableLayout>();
