@@ -1,0 +1,14 @@
+{
+  "name": "ng-customizable-layout",
+  "version": "19.0.0",
+  "sideEffects": true,
+  "peerDependencies": {
+    "@angular/common": "^19.0.0",
+    "@angular/cdk": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular/material": "^19.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}

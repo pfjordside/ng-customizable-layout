@@ -1,0 +1,35 @@
+div.actions {
+  --color-primary: #007bff;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
+  display: flex;
+  align-items: center;
+  button {
+    &.editing {
+      .mat-icon {
+        color: var(--color-primary);
+      }
+    }
+    &:last-child {
+      margin: 0.5rem;
+    }
+  }
+}
+
+.tablet {
+  display: none;
+  @media screen and (min-width: var(--breakpoint-tablet)) {
+    display: block;
+  }
+  @media screen and (max-width: var(--breakpoint-desktop)) {
+    display: block;
+  }
+}
+
+.desktop {
+  display: none;
+  @media screen and (min-width: var(--breakpoint-desktop)) {
+    display: block;
+  }
+}

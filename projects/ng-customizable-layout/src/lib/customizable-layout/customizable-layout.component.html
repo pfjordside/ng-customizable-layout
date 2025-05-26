@@ -1,0 +1,40 @@
+@if(currentLayout(); as layout) {
+<div
+  cdkDropListGroup
+  class="drag-container"
+  id="drag-container"
+  [ngStyle]="{
+    'grid-template-columns': templateColumns(),
+    gap: layout.cardMargin
+  }"
+>
+  @for (list of layout.lists; track list.containerName) {
+  <div
+    cdkDropList
+    class="drag-list"
+    [id]="list.containerName"
+    [ngClass]="list.containerName"
+    [cdkDropListData]="list.items"
+    [cdkDropListDisabled]="!editing()"
+    (cdkDropListDropped)="drop($event)"
+  >
+    @for (item of list.items | withoutHidden; track cardTrackBy($index, item)) {
+    <div
+      cdkDrag
+      class="drag-item"
+      [cdkDragStartDelay]="dragDelay()"
+      [ngClass]="{ editing: editing() }"
+      [ngStyle]="{
+        'margin-bottom': layout.cardMargin,
+        cursor: editing() ? 'grab' : 'default'
+      }"
+    >
+      @if (item.templateName | getTemplateRef : templateMap(); as templateRef) {
+      <ng-container *ngTemplateOutlet="templateRef"></ng-container>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>
+}
